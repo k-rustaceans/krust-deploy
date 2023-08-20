@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-krust-app
+  # You'll usually want to add your resources to the argocd namespace.
+  namespace: argocd
+  # Add this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # The project the application belongs to.
+  project: krust-project
+
+  # Source of the application manifests
+  source:
+    repoURL: https://github.com/k-rustaceans/krust-deploy.git
+    targetRevision: main
+    path: apps
+
+  # Destination cluster and namespace to deploy the application
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    # Namespace Auto-Creation ensures that namespace specified as the application destination exists in the destination cluster.
+    syncOptions:
+      - CreateNamespace=true
+
