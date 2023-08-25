@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: krust-kafka-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: krust-project
+
+  source:
+    repoURL: https://github.com/k-rustaceans/krust-deploy.git
+    targetRevision: main
+    path: charts/kafka
+
+    helm:
+      releaseName: kafka
+      valueFiles:
+        - values-override.yaml
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: krust
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
